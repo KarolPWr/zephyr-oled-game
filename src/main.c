@@ -25,6 +25,7 @@ void main(void)
 {
 	struct device *dev;
 	u16_t rows;
+	u16_t cols;
 	u8_t ppt;
 	u8_t font_width;
 	u8_t font_height;
@@ -53,7 +54,8 @@ void main(void)
 	display_blanking_off(dev);
 
 	rows = cfb_get_display_parameter(dev, CFB_DISPLAY_ROWS);
-	ppt = cfb_get_display_parameter(dev, CFB_DISPLAY_PPT);
+	ppt = cfb_get_display_parameter(dev, CFB_DISPLAY_PPT);  // pixel per tile
+	cols = cfb_get_display_parameter(dev, CFB_DISPLAY_COLS);
 
 	for (int idx = 0; idx < 42; idx++) {
 		if (cfb_get_font_size(dev, idx, &font_width, &font_height)) {
@@ -72,19 +74,16 @@ void main(void)
 	       cfb_get_display_parameter(dev, CFB_DISPLAY_COLS));
 
 	while (1) {
-		for (int i = 0; i < rows; i++) {
+		for (int i = 0; i < cols; i++) {
 			cfb_framebuffer_clear(dev, false);
 			if (cfb_print(dev,
-				      "01234",
-				      0, ppt)) {
+				      "*",
+				      i, 0)) {
 				printf("Failed to print a string\n");
 				continue;
 			}
-
+			display_write(dev, 0, 0,)
 			cfb_framebuffer_finalize(dev);
-#if defined(CONFIG_ARCH_POSIX)
-			k_sleep(K_MSEC(10));
-#endif
 		}
 	}
 }
